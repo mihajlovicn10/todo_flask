@@ -1,0 +1,40 @@
+{% extends 'base.html' %} 
+
+{%block title %}  
+Profile
+{% endblock %}  
+
+{% block content %} 
+
+<table> 
+    <tr>
+        <th>
+            Task 
+        </th>
+        <th>
+            Status 
+        </th>
+        <th>
+            Options
+        </th>
+    </tr>
+    {% for item in data %} 
+
+    <tr>
+        <td>
+            {{ item[1]}}
+        </td>
+        <td>
+            {% if item[2] == 0 %}
+            NOT COMPLETED
+            {% else %}
+            COMPLETED
+            {% endif %}
+        </td>
+        <td><a href="/update/{{item[0]}}"> Update </a>
+        <<a href="/delete/{{item[0]}}"> Delete </a></td>
+    </tr>
+    {% endfor %} 
+</table>
+
+{% endblock %} 

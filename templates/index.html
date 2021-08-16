@@ -1,0 +1,16 @@
+{% extends 'base.html' %}  
+
+{% block title %}  
+Home
+{% endblock %}  
+
+{% block content %} 
+
+<h3>Todo application</h3>
+<form action="{{ url_for('index') }}" method="POST">
+    <label for="add_task">Add your task: </label>
+    <input type="text" name="content" placeholder="Add task" id="content">
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock %} 

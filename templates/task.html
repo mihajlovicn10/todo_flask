@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/update/{{task[0]}}" method="POST">
+    <input name="content" value={{ task[1] }}>
+    <select name="status" >
+        <option value=0>NOT COMPLETED</option>
+        <option value=1>COMPLETED</option>
+    </select>
+    <input type="submit">
+
+
+
+</form>
+
+{% endblock %}

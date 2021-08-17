@@ -1,10 +1,13 @@
 from logging import debug
 from warnings import resetwarnings
-from flask import Flask, render_template, request, redirect,url_for, flash, session
+from flask import Flask, render_template, request, redirect,url_for, flash, session, json
 import mysql.connector
+import json
 
 
 app = Flask(__name__)
+
+
 
 app.secret_key = "secret1123#"
 
@@ -31,6 +34,7 @@ def index():
         print(insert_task)
         mycursor.execute(insert_task)
         mydb.commit()
+        print(f"json: {json.dumps(insert_task)}")
         return ("Task added!")
     else: 
         return render_template('index.html')
@@ -73,6 +77,7 @@ def profile():
     mycursor.execute(content_get)
     mydb.commit()
     result = mycursor.fetchall()
+    print(f"json: {json.dumps(result)}")
     return render_template("profile.html", data = result)
 
 @app.route('/search/', methods = ["GET" , "POST"])
@@ -80,14 +85,13 @@ def search():
     if request.method == "POST":
 
         search_data = request.form["search_data"]
-        print(search_data)
         search_query = "SELECT * FROM tasks WHERE content = '%s' AND uid = %s;" %(search_data,session["id"])
         mycursor.execute(search_query)
         mydb.commit()
         result = mycursor.fetchall()
         return render_template("search.html", data = result)
 
-    return render_template("search.html")
+    return render_template("search.html", search_data = "search_data")
 
 
 @app.route("/update/<int:id>", methods = ["GET" , "POST"])

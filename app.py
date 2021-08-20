@@ -1,15 +1,19 @@
 from logging import debug
 from warnings import resetwarnings
-from flask import Flask, render_template, request, redirect,url_for, flash, session, json
+from flask import Flask, render_template, request, redirect,url_for, flash, session, send_from_directory
 import mysql.connector
 import json
-
+from json import dumps
+import os
+import string
+import random
 
 app = Flask(__name__)
 
 
 
 app.secret_key = "secret1123#"
+
 
 mydb = mysql.connector.connect( 
     host = "localhost", 
@@ -31,7 +35,6 @@ def index():
     if request.method == "POST": 
         content = request.form["content"]
         insert_task = "INSERT INTO tasks (content, status, uid) VALUES ('%s', %s, %s);"%(content, 0, session["id"])
-        print(insert_task)
         mycursor.execute(insert_task)
         mydb.commit()
         print(f"json: {json.dumps(insert_task)}")
@@ -73,11 +76,10 @@ def logout():
 @app.route('/profile/', methods = ["GET" , "POST"])
 def profile():
     
-    content_get = "SELECT * FROM tasks WHERE uid = {}".format(session["id"]) 
+    content_get = "SELECT * FROM tasks WHERE uid = {}".format(session["id"])
     mycursor.execute(content_get)
     mydb.commit()
     result = mycursor.fetchall()
-    print(f"json: {json.dumps(result)}")
     return render_template("profile.html", data = result)
 
 @app.route('/search/', methods = ["GET" , "POST"])
@@ -115,6 +117,37 @@ def delete(id):
     mycursor.execute(search_query)
     mydb.commit()
     return redirect("/profile")
+
+@app.route("/export/")
+def export(): 
+    mycursor.execute("SELECT content, status FROM tasks WHERE uid = {};".format(session["id"]))
+    mydb.commit()
+    to_export = mycursor.fetchall()
+    export = '{"json":  ' + json.dumps(to_export) + '}'
+    jsonFile = open("file.json" , "w")
+    jsonFile.write(export)
+    jsonFile.close()
+    return send_from_directory(os.path.abspath(os.getcwd()), "file.json", as_attachment = True)
+
+
+@app.route("/import/", methods = ["GET" , "POST"])
+def import_file():
+    if 'file' in request.files:
+        imported_file = request.files["file"]
+        if import_file != "": 
+            name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
+            imported_file.save(name)
+            file = open(name, "r")
+            data = json.loads(file.read())
+            file.close()
+            os.remove(name)
+            for xy in data["json"]: 
+                insert_task = "INSERT INTO tasks (content, status, uid) VALUES ('%s', %s, %s);"%(xy[0],int(xy[1]), session["id"])
+                mycursor.execute(insert_task)
+                mydb.commit()
+            return "Tasks added successfully"
+
+    return render_template("import.html")
 
 if __name__ == "__main__": 
     app.run(debug = True)

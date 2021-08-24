@@ -12,10 +12,6 @@ from dbconfig import *
 
 
 
-
-
-
-
 @app.route('/', methods = ["GET","POST"])
 def index(): 
     if "logged" in session:

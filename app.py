@@ -7,22 +7,13 @@ from json import dumps
 import os
 import string
 import random
-
-app = Flask(__name__)
-
+from dbconfig import * 
 
 
-app.secret_key = "secret1123#"
 
 
-mydb = mysql.connector.connect( 
-    host = "localhost", 
-    user = "root", 
-    password = "", 
-    database = "todo"
-)
 
-mycursor = mydb.cursor(buffered=True)
+
 
 
 @app.route('/', methods = ["GET","POST"])
@@ -127,7 +118,7 @@ def export():
     jsonFile = open("file.json" , "w")
     jsonFile.write(export)
     jsonFile.close()
-    return send_from_directory(os.path.abspath(os.getcwd()), "file.json", as_attachment = True)
+    return send_from_directory(os.path.abspath(os.getcwd()), "file.json",os.path, as_attachment = True)
 
 
 @app.route("/import/", methods = ["GET" , "POST"])
